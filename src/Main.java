@@ -1,13 +1,16 @@
-import java.util.Deque;
+import java.util.InputMismatchException;
+import java.util.Queue;
 import java.util.ArrayDeque;
 import java.util.Scanner;
+
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Deque<String> history = new ArrayDeque<>();
+        Queue<String> tasks = new ArrayDeque<>();
         Scanner in = new Scanner(System.in);
+        int choice;
 
         myLoop:
             while(true){
@@ -15,23 +18,36 @@ public class Main {
                 printUI();
 
                 System.out.println("Select your Choice:\t");
-                int choice = in.nextInt();
-                in.nextLine();
+
+                try{
+
+                    choice = in.nextInt();
+                    in.nextLine();
+
+                }catch(InputMismatchException e){ //handle invalid inputs
+                    System.out.println("System Announcement: Invalid Input, Try Again.");
+                    in.nextLine();
+                    continue;
+                }
+
 
                 switch(choice){
                     case 1:
-                        visitPages(history,in);
+                        addTask(tasks, in);
                         break;
                     case 2:
-                        System.out.println(showCurrentPage(history));
+                        System.out.println(viewNextTask(tasks));
                         break;
                     case 3:
-                        System.out.println(backPressed(history));
+                        System.out.println(processTask(tasks));
                         break;
                     case 4:
+                        showAllTask(tasks);
+                        break;
+                    case 5:
                         break myLoop;
                     default:
-                        System.out.println("invalid option");
+                        System.out.println(" System Announcement: Invalid Option");
                 }
 
             }
@@ -41,76 +57,75 @@ public class Main {
 
     public static void printUI(){
         System.out.println("""
-                1. Visit Pages
-                2. Show Current Page
-                3. Back
-                4. End Program
+                Queue Demonstration Program
+                1. Add Task
+                2. View Next Task
+                3. Process Task
+                4. Show All Tasks
+                5. Exit
                 """
             );
     }
 
 
-    public static void visitPages(Deque<String> history, Scanner in){
-        System.out.println("""
-                Pages you can visit:
-                    1. github.com
-                    2. youtube.com
-                    3. google.com
-                    4. stackoverflow.com
-                """);
+    public static void addTask(Queue<String> tasks, Scanner in){
 
-        System.out.println("Select your Choice: ");
 
-        int choice = in.nextInt();
-        in.nextLine();
+            System.out.println("Enter Task:\t");
+            String task = in.nextLine();
 
-        switch(choice) {
-            case 1:
-                history.push("github.com");
-                break;
-            case 2:
-                history.push("youtube.com");
-                break;
-            case 3:
-                history.push("google.com");
-                break;
-            case 4:
-                history.push("stackoverflow.com");
-                break;
-            default:
-                System.out.println("invalid option");
+            if(task.isBlank()){ //handle empty inputs
+                System.out.println("System Announcement: Input Cannot be Empty, Try Again.");
                 return;
-        }
+            }
 
-        System.out.println("Current page visited: " + history.peek());
+            if(task.trim().matches("[+-]?\\d+")){
+                System.out.println("System Announcement: Input is Invalid, Try Again.");
+                return;
+            }
 
-    }
+            tasks.offer(task);
 
-    public static String showCurrentPage(Deque<String> history){
-
-        if(history.isEmpty()) {
-            return "Stack is currently empty";
-        }
-           return "Current page visited: " + history.peek();
+        System.out.println("System Announcement: Task Added..\n");
 
     }
 
-    public static String backPressed(Deque<String> history){
+    public static String viewNextTask(Queue<String> tasks){
 
-        if(history.isEmpty()){
-            return "The Stack is currently Empty!";
+        if(tasks.isEmpty()){
+            return "System Announcement: Tasks are currently empty!";
         }
-
-        String removedPage = history.pop();
-
-        if(history.isEmpty()){
-            return "Pressed back! removed: " + removedPage + "\nNo Pages Left!";
-        }
-
-        return "Pressed back! removed: " + removedPage + "\nCurrent Page visited: " + history.peek();
-
+        return "Next Task: " + tasks.peek() + "\n";
     }
 
+    public static String processTask(Queue<String> tasks){
+
+        if(tasks.isEmpty()){
+            return "System Announcement: There are no tasks to process!";
+        }
+
+        return "Processing Task: " + tasks.poll() + "\n";
+    }
+
+    public static void showAllTask(Queue<String> tasks){
+
+        if(tasks.isEmpty()){
+            System.out.println("System Announcement: Tasks are currently empty!");
+            return;
+        }
+
+        int i = 0;
+
+        System.out.println("Current Tasks:");
+        for(String task: tasks){
+            i+=1;
+            System.out.println(i + ". " + task);
+
+        }
+
+        System.out.println();
+
+    }
 
 
 }
